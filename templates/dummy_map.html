@@ -1,0 +1,53 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+       #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+<script type="text/javascript">
+function initMap() {
+    var DATA;
+    fetch(
+            'http://127.0.0.1:5000/cat-sightings/'
+    ).then(function(response) { return response.json(); }
+    ).then(function(data){
+        DATA = data.results;
+        console.log(data.results);
+    }).then(function(){
+        var firstCatLocation = DATA[0].location;
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 16,
+            center: firstCatLocation
+        });
+
+        var markers = [];
+        for (var i = 0; i < DATA.length; i++) {
+            var infoString = '<img src="' + DATA[i].photo_url + '" style="max-height: 100px; max-width: 100px;" />';
+            var catinfowindow = new google.maps.InfoWindow({
+                content: infoString
+            });
+            var position = new google.maps.LatLng(DATA[i].location);
+            markers[i] = new google.maps.Marker({
+                position: position,
+                map: map,
+                id: i,
+                infowindow: catinfowindow
+            });
+            google.maps.event.addListener(markers[i], 'click', function() {
+                this.infowindow.open(map, this);
+            });
+        }
+    });
+}
+</script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAshV45alwBW1sUS8t8Rxwy6uA5Waduh4&callback=initMap">
+</script>
+</body>
+</html>
